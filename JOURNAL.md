@@ -18,21 +18,13 @@ The test mocks are set up incorrectly for async database operations. The service
 
 **Cohort ledger:** [Yes ] Issue added to cohort ledger
 
-**Reproduction steps:**
+## Week 8 — Reproduction & solution planning
 
-1. Make sure the virtual environment is activated:
-   ```
-   source .venv/bin/activate
-   ```
-2. Run the failing tests:
-   ```
-   pytest tests/unit/test_review_service.py -q
-   ```
-3. Observed output: 13 failed, 6 passed
-   - Tests calling `get_review` fail with:
-     `AttributeError: 'coroutine' object has no attribute 'first'`
-   - Tests calling `list_reviews` fail with:
-     `AttributeError: 'coroutine' object has no attribute 'all'`
+**Reproduction commit link:** [https://github.com/Blessing27-oss/Pathreview/commit/48ed1ff8feafd46cbfbb55a0f3d8eebc04554494](https://github.com/Blessing27-oss/Pathreview/commit/48ed1ff8feafd46cbfbb55a0f3d8eebc04554494)
 
-**Root cause observed:**
-In each failing test, `mock_result` is created as `AsyncMock()`. Because `AsyncMock` makes every attribute access return a coroutine, calling `mock_result.scalars()` returns a coroutine instead of a plain object. The service code then calls `.first()` or `.all()` on that coroutine, which raises `AttributeError` since coroutines have no such methods.
+**Reproduction summary:**
+Ran `pytest tests/unit/test_review_service.py -q` with the virtual environment activated and observed 13 failures. Tests calling `get_review` crashed with `AttributeError: 'coroutine' object has no attribute 'first'` and tests calling `list_reviews` crashed with `AttributeError: 'coroutine' object has no attribute 'all'`, confirming that `mock_result = AsyncMock()` causes `scalars()` to return a coroutine instead of a plain result object.
+
+**PLAN.md link:** [https://github.com/Blessing27-oss/Pathreview/blob/fix/158-unit-tests-misconfigure-async-mocks/PLAN.md](https://github.com/Blessing27-oss/Pathreview/blob/fix/158-unit-tests-misconfigure-async-mocks/PLAN.md)
+
+**Walkthrough video (recommended):  [www.loom.com/share/cad333687a314bc398567439426f9246](https://www.loom.com/share/cad333687a314bc398567439426f9246)**
